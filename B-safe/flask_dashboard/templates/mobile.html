@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>B-SAFE Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #f9fafb;
+    }
+
+    .phone-wrap {
+      width: 100%;
+      max-width: 430px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 16px;
+      background: #111827;
+    }
+
+    .title-box {
+      border: 2px solid #374151;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 14px;
+      background: #020617;
+    }
+
+    .risk-box {
+      border: 2px solid #374151;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      background: #1f2937;
+    }
+
+    .risk-label {
+      font-size: 15px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .risk-status {
+      font-size: 36px;
+      font-weight: bold;
+    }
+
+    .risk-message {
+      margin-top: 8px;
+      font-size: 15px;
+      line-height: 1.4;
+      color: #e5e7eb;
+    }
+
+    .normal {
+      border-color: #22c55e;
+      color: #22c55e;
+    }
+
+    .warn {
+      border-color: #facc15;
+      color: #facc15;
+    }
+
+    .danger {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .left-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .data-card {
+      background: #1f2937;
+      border: 2px solid #374151;
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 82px;
+    }
+
+    .data-label {
+      font-size: 14px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+
+    .data-value {
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .data-sub {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .danger-data-card {
+      border-color: #ef4444 !important;
+      background: rgba(127, 29, 29, 0.45) !important;
+      color: #fecaca !important;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.35);
+    }
+
+    .danger-data-card .data-label {
+      color: #fca5a5 !important;
+    }
+
+    .danger-data-card .data-value {
+      color: #ffffff !important;
+    }
+
+    .danger-data-card .data-sub {
+      color: #fecaca !important;
+    }
+
+    .gauge-card {
+      background: #1f2937;
+      border: 2px solid #374151;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 270px;
+    }
+
+    .gauge-title {
+      text-align: center;
+      color: #e5e7eb;
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .gauge-canvas-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+    }
+
+    #riskGauge {
+      width: 100%;
+      max-width: 180px;
+      height: 130px;
+    }
+
+    .risk-percent {
+      text-align: center;
+      font-size: 34px;
+      font-weight: bold;
+      margin-top: -4px;
+    }
+
+    .return-btn {
+      margin-top: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 8px;
+      font-size: 16px;
+      font-weight: bold;
+      color: white;
+      background: #dc2626;
+    }
+
+    .return-btn.safe {
+      background: #16a34a;
+    }
+
+    .gps-box {
+      border: 2px solid #374151;
+      border-radius: 14px;
+      background: #1f2937;
+      padding: 18px;
+      margin-top: 12px;
+      min-height: 120px;
+    }
+
+    .gps-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .gps-main {
+      font-size: 17px;
+      line-height: 1.5;
+      color: #e5e7eb;
+    }
+
+    .gps-sub {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #9ca3af;
+    }
+
+    .footer {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="phone-wrap">
+
+    <div class="title-box">
+      B-SAFE
+    </div>
+
+    <div id="riskBox" class="risk-box">
+      <div class="risk-label">위험도</div>
+      <div id="statusValue" class="risk-status">READY</div>
+      <div id="messageValue" class="risk-message">ESP32 데이터 대기 중</div>
+    </div>
+
+    <div class="main-grid">
+
+      <div class="left-stack">
+
+        <div id="tempCard" class="data-card">
+          <div class="data-label">온도</div>
+          <div class="data-value">
+            <span id="tempValue">--</span> ℃
+          </div>
+        </div>
+
+        <div id="voltageCard" class="data-card">
+          <div class="data-label">전압</div>
+          <div class="data-value">
+            <span id="packVoltageValue">--</span> V
+          </div>
+        </div>
+
+        <div id="currentCard" class="data-card">
+          <div class="data-label">전류</div>
+          <div class="data-value">
+            <span id="currentValue">--</span> A
+          </div>
+        </div>
+
+      </div>
+
+      <div class="gauge-card">
+        <div>
+          <div class="gauge-title">위험도</div>
+
+          <div class="gauge-canvas-wrap">
+            <canvas id="riskGauge" width="220" height="150"></canvas>
+          </div>
+
+          <div class="risk-percent">
+            <span id="riskPercentValue">0</span>%
+          </div>
+        </div>
+
+        <button id="returnButton" class="return-btn safe">
+          정상 비행
+        </button>
+      </div>
+
+    </div>
+
+    <div class="bottom-grid">
+
+      <div id="tempRateCard" class="data-card">
+        <div class="data-label">온도 상승속도</div>
+        <div class="data-value">
+          <span id="tempRateValue">--</span> ℃/s
+        </div>
+      </div>
+
+      <div id="flightTimeCard" class="data-card">
+        <div class="data-label">잔여 비행시간</div>
+        <div class="data-value">
+          <span id="flightTimeValue">--</span> 분
+        </div>
+        <div class="data-sub">
+          잔여 배터리: <span id="batteryPercentValue">--</span> %
+        </div>
+      </div>
+
+    </div>
+
+    <div class="gps-box">
+      <div class="gps-title">GPS 기반 착륙지점</div>
+
+      <div id="gpsMain" class="gps-main">
+        위험 상태가 아닙니다.
+      </div>
+
+      <div id="gpsSub" class="gps-sub">
+        위험 감지 시 가장 가까운 안전 착륙 후보지를 안내합니다.
+      </div>
+    </div>
+
+    <div class="footer">
+      Last update: <span id="serverTimeValue">--</span>
+    </div>
+
+  </div>
+
+  <script src="/static/mobile.js"></script>
+</body>
+</html>

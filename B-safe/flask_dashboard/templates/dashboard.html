@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>B-safe Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #0f172a;
+      color: #f9fafb;
+      font-family: Arial, sans-serif;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .box {
+      background: #1f2937;
+      border: 2px solid #374151;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f9fafb;
+    }
+
+    .title-box {
+      width: 260px;
+      height: 72px;
+      font-size: 32px;
+      margin-bottom: 20px;
+      justify-content: flex-start;
+      padding-left: 28px;
+      font-weight: bold;
+      background: #020617;
+      border-color: #475569;
+    }
+
+    .top-row {
+      display: grid;
+      grid-template-columns: 180px 1fr 1fr 250px;
+      gap: 22px;
+      margin-bottom: 22px;
+      align-items: center;
+    }
+
+    .top-box {
+      height: 90px;
+      padding: 12px;
+      flex-direction: column;
+      gap: 6px;
+      overflow: hidden;
+    }
+
+    .top-label {
+      font-size: 15px;
+      color: #9ca3af;
+    }
+
+    .top-value {
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .score-cause-value {
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .score-cause-sub {
+      font-size: 13px;
+      color: #d1d5db;
+      text-align: center;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: none;
+    }
+
+    .data-row {
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .label-box {
+      height: 78px;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+    }
+
+    .label-title {
+      font-size: 18px;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .label-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #f9fafb;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .graph-box {
+      height: 96px;
+      position: relative;
+      overflow: hidden;
+      background: #111827;
+    }
+
+    .graph-canvas {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .graph-title {
+      position: absolute;
+      left: 18px;
+      top: 9px;
+      z-index: 2;
+      pointer-events: none;
+      font-size: 17px;
+      font-weight: bold;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.75);
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 24px;
+      margin-top: 18px;
+    }
+
+    .battery-box {
+      min-height: 112px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .battery-title {
+      grid-column: 1 / -1;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      font-weight: bold;
+      border-bottom: 2px solid #374151;
+      background: rgba(2, 6, 23, 0.35);
+    }
+
+    .battery-item {
+      min-height: 74px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-right: 2px solid #374151;
+      gap: 6px;
+      padding: 6px;
+    }
+
+    .battery-item:last-child {
+      border-right: none;
+    }
+
+    .battery-label {
+      font-size: 13px;
+      color: #9ca3af;
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .battery-value {
+      font-size: 22px;
+      font-weight: bold;
+      color: #f9fafb;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    .event-box {
+      min-height: 112px;
+      flex-direction: column;
+      padding: 12px 16px;
+      overflow: hidden;
+      background: #1f2937;
+    }
+
+    .event-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      color: #f9fafb;
+    }
+
+    .event-line {
+      font-size: 15px;
+      width: 100%;
+      text-align: center;
+      color: #d1d5db;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 6px;
+    }
+
+    .event-detail {
+      font-size: 13px;
+      width: 100%;
+      text-align: center;
+      color: #9ca3af;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .normal-box {
+      border-color: #22c55e !important;
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.25);
+    }
+
+    .normal-box .top-value,
+    .normal-box .score-cause-value,
+    .normal-box .label-value,
+    .normal-box .battery-value {
+      color: #22c55e !important;
+    }
+
+    .warn-box {
+      border-color: #facc15 !important;
+      box-shadow: 0 0 16px rgba(250, 204, 21, 0.25);
+    }
+
+    .warn-box .top-value,
+    .warn-box .score-cause-value,
+    .warn-box .label-value,
+    .warn-box .battery-value {
+      color: #facc15 !important;
+    }
+
+    .danger-box {
+      border-color: #ef4444 !important;
+      background: rgba(127, 29, 29, 0.45) !important;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
+    }
+
+    .danger-box .top-value,
+    .danger-box .score-cause-value,
+    .danger-box .label-value,
+    .danger-box .battery-value {
+      color: #ffffff !important;
+    }
+
+    .danger-box .top-label,
+    .danger-box .score-cause-sub,
+    .danger-box .label-title,
+    .danger-box .battery-label,
+    .danger-box .event-detail {
+      color: #fca5a5 !important;
+    }
+
+    /* ===============================
+       DANGER 자동 복귀 화면
+       =============================== */
+
+    #dangerDashboard,
+    #landingCompleteDashboard {
+      display: none;
+    }
+
+    .danger-page {
+      width: 100%;
+      max-width: 1280px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 24px;
+      background: #0f172a;
+    }
+
+    .danger-alert-bar {
+      width: 100%;
+      min-height: 96px;
+      margin: 0 0 22px;
+      display: grid;
+      grid-template-columns: 110px 1fr 110px;
+      align-items: center;
+      background: #1f2937;
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.35);
+    }
+
+    .warning-icon {
+      width: 68px;
+      height: 68px;
+      margin: 0 auto;
+      border-radius: 14px;
+      background: rgba(127, 29, 29, 0.7);
+      border: 2px solid #ef4444;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 44px;
+      font-weight: bold;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.45);
+    }
+
+    .danger-alert-title {
+      text-align: center;
+      font-size: 42px;
+      font-weight: bold;
+      color: #ffffff;
+      letter-spacing: 4px;
+    }
+
+    .danger-main-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .danger-side {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .danger-side-card {
+      min-height: 92px;
+      background: rgba(127, 29, 29, 0.45);
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #f9fafb;
+    }
+
+    .danger-side-label {
+      font-size: 17px;
+      color: #fca5a5;
+      margin-bottom: 8px;
+    }
+
+    .danger-side-value {
+      font-size: 25px;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .landing-panel {
+      min-height: 690px;
+      background: #1f2937;
+      border: 2px solid #ef4444;
+      border-radius: 16px;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .landing-screen {
+      width: 100%;
+      height: 100%;
+      min-height: 660px;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #07111f;
+      border: 2px solid #374151;
+      position: relative;
+    }
+
+    .map-area {
+      position: relative;
+      width: 100%;
+      height: 660px;
+      background-image:
+        linear-gradient(rgba(3, 7, 18, 0.32), rgba(3, 7, 18, 0.32)),
+        url("/static/landing_map.png");
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+
+    .map-title {
+      position: absolute;
+      left: 22px;
+      top: 16px;
+      padding: 8px 12px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #e5e7eb;
+      z-index: 4;
+    }
+
+    .map-legend {
+      position: absolute;
+      left: 22px;
+      top: 70px;
+      width: 230px;
+      padding: 16px;
+      background: rgba(15, 23, 42, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      border-radius: 10px;
+      z-index: 4;
+    }
+
+    .legend-item {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+      color: #e5e7eb;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .legend-drone,
+    .legend-safe,
+    .legend-nearest {
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .legend-path {
+      width: 28px;
+      height: 4px;
+      background: #22d3ee;
+      border-radius: 999px;
+      box-shadow: 0 0 10px rgba(34, 211, 238, 0.8);
+    }
+
+    .flight-path-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .flight-path {
+      fill: none;
+      stroke: #22d3ee;
+      stroke-width: 5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.9));
+      stroke-dasharray: 20 14;
+      animation: pathFlow 1.4s linear infinite;
+    }
+
+    @keyframes pathFlow {
+      0% {
+        stroke-dashoffset: 0;
+      }
+
+      100% {
+        stroke-dashoffset: -68;
+      }
+    }
+
+    .drone-marker {
+      position: absolute;
+      left: 24%;
+      top: 72%;
+      width: 66px;
+      height: 66px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.26);
+      border: 3px solid #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 6;
+      font-size: 32px;
+      animation: droneMoveToLanding 14s ease-in-out forwards;
+    }
+
+    @keyframes droneMoveToLanding {
+      0% {
+        left: 24%;
+        top: 72%;
+      }
+
+      12% {
+        left: 24%;
+        top: 72%;
+      }
+
+      28% {
+        left: 31%;
+        top: 70.5%;
+      }
+
+      44% {
+        left: 35%;
+        top: 67.5%;
+      }
+
+      60% {
+        left: 40%;
+        top: 63.5%;
+      }
+
+      78% {
+        left: 45%;
+        top: 59.8%;
+      }
+
+      88% {
+        left: 52%;
+        top: 58%;
+      }
+      90% {
+        left: 57%;
+        top: 57%;
+      }
+      92% {
+        left: 57%;
+        top: 57%;
+      }
+
+      100% {
+        left: 57%;
+        top: 57%;
+      }
+    }
+
+    .drone-marker::after {
+      content: "드론 위치";
+      position: absolute;
+      left: 50%;
+      top: 72px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      padding: 5px 9px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid rgba(56, 189, 248, 0.65);
+      color: #e0f2fe;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .landing-point {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .landing-pin {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: 3px solid currentColor;
+      background: rgba(15, 23, 42, 0.76);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 25px;
+      box-shadow: 0 0 16px currentColor;
+    }
+
+    .landing-point-label {
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      color: #f9fafb;
+      font-size: 14px;
+      line-height: 1.35;
+      white-space: nowrap;
+    }
+
+    .landing-point-label strong {
+      display: block;
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+
+    .landing-a {
+      left: 78%;
+      top: 24%;
+      color: #22c55e;
+    }
+
+    .landing-b {
+      left: 66%;
+      top: 57%;
+      color: #facc15;
+    }
+
+    .nearest-badge {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 3px 7px;
+      background: rgba(250, 204, 21, 0.18);
+      border: 1px solid rgba(250, 204, 21, 0.75);
+      color: #facc15;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .map-controls {
+      position: absolute;
+      right: 18px;
+      top: 46%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 7;
+    }
+
+    .map-control-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: rgba(31, 41, 55, 0.9);
+      border: 2px solid #475569;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.35);
+    }
+
+    .map-scale {
+      position: absolute;
+      left: 34px;
+      bottom: 32px;
+      width: 88px;
+      height: 34px;
+      border-left: 3px solid #e5e7eb;
+      border-right: 3px solid #e5e7eb;
+      border-bottom: 3px solid #e5e7eb;
+      color: #e5e7eb;
+      font-size: 13px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 4px;
+      z-index: 4;
+      background: rgba(15, 23, 42, 0.35);
+    }
+
+    /* ===============================
+       착륙 완료 화면
+       =============================== */
+
+    .complete-alert-bar {
+      border-color: #22c55e;
+      box-shadow: 0 0 22px rgba(34, 197, 94, 0.35);
+    }
+
+    .complete-icon {
+      background: rgba(20, 83, 45, 0.7);
+      border-color: #22c55e;
+      color: #ffffff;
+    }
+
+    .complete-title {
+      color: #22c55e;
+    }
+
+    .complete-card {
+      background: rgba(20, 83, 45, 0.45);
+      border-color: #22c55e;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
+    }
+
+    .complete-card .danger-side-label {
+      color: #bbf7d0;
+    }
+
+    .complete-panel {
+      border-color: #22c55e;
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.35);
+    }
+
+    .complete-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .complete-main-text {
+      font-size: 72px;
+      color: #22c55e;
+      font-weight: bold;
+      line-height: 1.1;
+    }
+
+    .complete-sub-text {
+      font-size: 34px;
+      color: #f9fafb;
+      font-weight: bold;
+    }
+
+    .complete-description {
+      font-size: 20px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .check-list-box {
+      width: 80%;
+      max-width: 720px;
+      padding: 22px;
+      border: 2px solid #475569;
+      border-radius: 16px;
+      background: rgba(15, 23, 42, 0.85);
+      color: #e5e7eb;
+      font-size: 18px;
+      line-height: 1.7;
+      text-align: left;
+    }
+
+    .reset-button {
+      margin-top: 10px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: 2px solid #22c55e;
+      background: #14532d;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .reset-button:hover {
+      background: #166534;
+    }
+
+    @media (max-width: 900px) {
+      .page,
+      .danger-page {
+        padding: 14px;
+      }
+
+      .title-box {
+        width: 220px;
+        height: 62px;
+        font-size: 27px;
+      }
+
+      .top-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .data-row {
+        grid-template-columns: 140px 1fr;
+      }
+
+      .label-title {
+        font-size: 15px;
+      }
+
+      .label-value {
+        font-size: 19px;
+      }
+
+      .bottom-row {
+        grid-template-columns: 1fr;
+      }
+
+      .battery-box {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+
+      .battery-title {
+        grid-column: auto;
+      }
+
+      .battery-item {
+        min-height: 68px;
+        border-right: none;
+        border-bottom: 2px solid #374151;
+      }
+
+      .battery-item:last-child {
+        border-bottom: none;
+      }
+
+      .danger-alert-bar {
+        grid-template-columns: 70px 1fr 70px;
+      }
+
+      .warning-icon {
+        width: 54px;
+        height: 54px;
+        font-size: 38px;
+      }
+
+      .danger-alert-title {
+        font-size: 30px;
+      }
+
+      .danger-main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .danger-side {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .map-area {
+        height: 520px;
+      }
+
+      .landing-panel {
+        min-height: 550px;
+      }
+
+      .landing-screen {
+        min-height: 520px;
+      }
+
+      .complete-main-text {
+        font-size: 42px;
+      }
+
+      .complete-sub-text {
+        font-size: 24px;
+      }
+
+      .check-list-box {
+        width: 100%;
+        font-size: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- =====================================================
+       NORMAL / WARN 일반 대시보드
+       ===================================================== -->
+  <div id="normalDashboard" class="page">
+    <div class="box title-box">
+      B-safe
+    </div>
+
+    <div class="top-row">
+      <div id="statusBox" class="box top-box">
+        <div class="top-label">현재상태</div>
+        <div id="statusValue" class="top-value">READY</div>
+      </div>
+
+      <div id="scoreCauseBox" class="box top-box">
+        <div class="top-label">점수별 원인</div>
+        <div id="scoreCauseValue" class="score-cause-value">데이터 대기 중</div>
+        <div id="scoreCauseSub" class="score-cause-sub"></div>
+      </div>
+
+      <div id="secondaryCauseBox" class="box top-box">
+        <div class="top-label">보조원인</div>
+        <div id="secondaryCauseValue" class="score-cause-value">-</div>
+        <div id="secondaryCauseSub" class="score-cause-sub"></div>
+      </div>
+
+      <div id="riskBox" class="box top-box">
+        <div class="top-label">위험도 점수</div>
+        <div class="top-value"><span id="riskPercentValue">0.0</span> / 100</div>
+      </div>
+    </div>
+
+    <div class="data-row">
+      <div id="tempBox" class="box label-box">
+        <div class="label-title">온도</div>
+        <div class="label-value"><span id="tempValue">--</span> ℃</div>
+      </div>
+
+      <div class="box graph-box">
+        <canvas id="tempChart" class="graph-canvas"></canvas>
+        <div class="graph-title">온도 그래프</div>
+      </div>
+    </div>
+
+    <div class="data-row">
+      <div id="tempRateBox" class="box label-box">
+        <div class="label-title">온도상승속도</div>
+        <div class="label-value"><span id="tempRateValue">--</span> ℃/s</div>
+      </div>
+
+      <div class="box graph-box">
+        <canvas id="tempRateChart" class="graph-canvas"></canvas>
+        <div class="graph-title">온도 상승속도 그래프</div>
+      </div>
+    </div>
+
+    <div class="data-row">
+      <div id="voltageBox" class="box label-box">
+        <div class="label-title">전압</div>
+        <div class="label-value"><span id="packVoltageValue">--</span> V</div>
+      </div>
+
+      <div class="box graph-box">
+        <canvas id="voltageChart" class="graph-canvas"></canvas>
+        <div class="graph-title">전압 그래프</div>
+      </div>
+    </div>
+
+    <div class="data-row">
+      <div id="currentBox" class="box label-box">
+        <div class="label-title">전류</div>
+        <div class="label-value"><span id="currentValue">--</span> A</div>
+      </div>
+
+      <div class="box graph-box">
+        <canvas id="currentChart" class="graph-canvas"></canvas>
+        <div class="graph-title">전류 그래프</div>
+      </div>
+    </div>
+
+    <div class="data-row">
+      <div id="voltageDropBox" class="box label-box">
+        <div class="label-title">전압하강속도</div>
+        <div class="label-value"><span id="voltageDropRateValue">--</span> V/s</div>
+      </div>
+
+      <div class="box graph-box">
+        <canvas id="voltageDropChart" class="graph-canvas"></canvas>
+        <div class="graph-title">전압하강속도 그래프</div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div id="batteryBox" class="box battery-box">
+        <div class="battery-title">배터리 분석 정보</div>
+
+        <div class="battery-item">
+          <div class="battery-label">잔여 배터리</div>
+          <div class="battery-value"><span id="batteryPercentValue">--</span> %</div>
+        </div>
+
+        <div class="battery-item">
+          <div class="battery-label">잔여 비행시간</div>
+          <div class="battery-value"><span id="flightTimeValue">--</span> 분</div>
+        </div>
+
+        <div class="battery-item">
+          <div class="battery-label">평균 셀 전압</div>
+          <div class="battery-value"><span id="cellAvgValue">--</span> V</div>
+        </div>
+
+        <div class="battery-item">
+          <div class="battery-label">내부저항 추정</div>
+          <div class="battery-value"><span id="internalResistanceValue">--</span> Ω</div>
+        </div>
+
+        <div class="battery-item">
+          <div class="battery-label">소모 전력</div>
+          <div class="battery-value"><span id="powerValue">--</span> W</div>
+        </div>
+      </div>
+
+      <div id="eventLogBox" class="box event-box">
+        <div class="event-title">이벤트 로그</div>
+        <div id="eventLine" class="event-line">데이터 대기 중...</div>
+        <div id="eventDetail" class="event-detail">ESP32 데이터 수신 후 원인 분석 정보가 표시됩니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       DANGER 자동 복귀 지도 화면
+       ===================================================== -->
+  <div id="dangerDashboard" class="danger-page">
+    <div class="danger-alert-bar">
+      <div class="warning-icon">!</div>
+      <div class="danger-alert-title">자동 복귀중</div>
+      <div class="warning-icon">!</div>
+    </div>
+
+    <div class="danger-main-layout">
+      <div class="danger-side">
+        <div class="danger-side-card">
+          <div class="danger-side-label">온도</div>
+          <div class="danger-side-value"><span id="dangerTempValue">--</span> ℃</div>
+        </div>
+
+        <div class="danger-side-card">
+          <div class="danger-side-label">온도상승속도</div>
+          <div class="danger-side-value"><span id="dangerTempRateValue">--</span> ℃/s</div>
+        </div>
+
+        <div class="danger-side-card">
+          <div class="danger-side-label">전압</div>
+          <div class="danger-side-value"><span id="dangerPackVoltageValue">--</span> V</div>
+        </div>
+
+        <div class="danger-side-card">
+          <div class="danger-side-label">전류</div>
+          <div class="danger-side-value"><span id="dangerCurrentValue">--</span> A</div>
+        </div>
+
+        <div class="danger-side-card">
+          <div class="danger-side-label">전압하강속도</div>
+          <div class="danger-side-value"><span id="dangerVoltageDropRateValue">--</span> V/s</div>
+        </div>
+      </div>
+
+      <div class="landing-panel">
+        <div class="landing-screen">
+          <div class="map-area">
+            <div class="map-title">실시간 지도</div>
+
+            <div class="map-legend">
+              <div class="legend-item">
+                <div class="legend-drone">✣</div>
+                <div>현재 드론 위치</div>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-path"></div>
+                <div>자동 복귀 경로</div>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-safe">○</div>
+                <div>안전 착륙 지점</div>
+              </div>
+
+              <div class="legend-item">
+                <div class="legend-nearest">●</div>
+                <div>가장 가까운 착륙 지점</div>
+              </div>
+            </div>
+
+            <svg class="flight-path-svg" viewBox="0 0 1000 660" preserveAspectRatio="none">
+              <path class="flight-path" d="M 240 475 C 310 465, 390 445, 470 420 C 560 395, 620 380, 660 376" />
+            </svg>
+
+            <div class="drone-marker">✣</div>
+
+            <div class="landing-point landing-a">
+              <div class="landing-pin">●</div>
+              <div class="landing-point-label">
+                <strong>착륙 지점 A</strong>
+                1.82 km
+              </div>
+            </div>
+
+            <div class="landing-point landing-b">
+              <div class="landing-pin">●</div>
+              <div class="landing-point-label">
+                <strong>착륙 지점 B</strong>
+                0.64 km
+                <span class="nearest-badge">가장 가까움</span>
+              </div>
+            </div>
+
+            <div class="map-controls">
+              <div class="map-control-btn">⌖</div>
+              <div class="map-control-btn">+</div>
+              <div class="map-control-btn">−</div>
+              <div class="map-control-btn">≡</div>
+            </div>
+
+            <div class="map-scale">500 m</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       착륙 완료 화면
+       ===================================================== -->
+  <div id="landingCompleteDashboard" class="danger-page">
+    <div class="danger-alert-bar complete-alert-bar">
+      <div class="warning-icon complete-icon">✓</div>
+      <div class="danger-alert-title complete-title">착륙 완료</div>
+      <div class="warning-icon complete-icon">✓</div>
+    </div>
+
+    <div class="danger-main-layout">
+      <div class="danger-side">
+        <div class="danger-side-card complete-card">
+          <div class="danger-side-label">최종 온도</div>
+          <div class="danger-side-value"><span id="landingTempValue">--</span> ℃</div>
+        </div>
+
+        <div class="danger-side-card complete-card">
+          <div class="danger-side-label">온도상승속도</div>
+          <div class="danger-side-value"><span id="landingTempRateValue">--</span> ℃/s</div>
+        </div>
+
+        <div class="danger-side-card complete-card">
+          <div class="danger-side-label">팩 전압</div>
+          <div class="danger-side-value"><span id="landingPackVoltageValue">--</span> V</div>
+        </div>
+
+        <div class="danger-side-card complete-card">
+          <div class="danger-side-label">전류</div>
+          <div class="danger-side-value"><span id="landingCurrentValue">--</span> A</div>
+        </div>
+
+        <div class="danger-side-card complete-card">
+          <div class="danger-side-label">착륙 시간</div>
+          <div class="danger-side-value"><span id="landingTimeValue">--</span></div>
+        </div>
+      </div>
+
+      <div class="landing-panel complete-panel">
+        <div class="landing-screen complete-screen">
+          <div class="complete-main-text">SAFE LANDING</div>
+
+          <div class="complete-sub-text">안전 착륙 완료</div>
+
+          <div class="complete-description">
+            배터리 위험 예측 후 자동 복귀 경로를 따라 착륙 지점에 도달했습니다.<br>
+            착륙 후 배터리 냉각 및 재사용 가능성 점검이 필요합니다.
+          </div>
+
+          <div class="check-list-box">
+            <strong style="color: #22c55e;">착륙 후 점검 항목</strong><br>
+            1. 배터리 표면 온도 하강 확인<br>
+            2. 팩 전압 회복 여부 확인<br>
+            3. 배터리 팽창 또는 외관 손상 확인<br>
+            4. CSV 로그 기반 위험 원인 분석<br>
+            5. 반복 경고 발생 시 재사용 비권장
+          </div>
+
+          <button class="reset-button" onclick="resetLandingFlow()">
+            시연 초기화
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>
